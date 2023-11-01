@@ -40,7 +40,6 @@ def dft_systemds(signal,name):
 
         index = (list(map(lambda x: [x],np.array(range(0, size, 1)))))
         DFT = np.hstack((index,Xa.cbind(Xb).compute()))
-        #DFT_pdf = pd.DataFrame(DFT, columns=list(["id",name+'_sin',name+'_cos']))
         DFT_df = spark.createDataFrame(DFT.tolist(),["id",name+'_sin',name+'_cos'])
         return DFT_df
 
