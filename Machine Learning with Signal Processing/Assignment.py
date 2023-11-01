@@ -12,6 +12,7 @@ spark = SparkSession \
     .getOrCreate()
 
 df=spark.read.parquet('shake.parquet') 
+df = df.sample(0.10)
 df.show()
 
 df.createOrReplaceTempView("df")
@@ -24,9 +25,9 @@ import pandas as pd
 def dft_systemds(signal,name):
 
 
-    with SystemDSContext(spark) as sds:
-        size = signal.count()  
-        signal = sds.from_numpy(signal.toPandas().to_numpy())
+    with SystemDSContext(8080) as sds:
+        size = len(signal)
+        signal = sds.from_numpy(signal.to_numpy())
         pi = sds.scalar(3.141592654)
 
         n = sds.seq(0,size-1)
@@ -39,8 +40,8 @@ def dft_systemds(signal,name):
 
         index = (list(map(lambda x: [x],np.array(range(0, size, 1)))))
         DFT = np.hstack((index,Xa.cbind(Xb).compute()))
-        DFT_pdf = pd.DataFrame(DFT, columns=list(["id",name+'_sin',name+'_cos']))
-        DFT_df = spark.createDataFrame(DFT_pdf)
+        #DFT_pdf = pd.DataFrame(DFT, columns=list(["id",name+'_sin',name+'_cos']))
+        DFT_df = spark.createDataFrame(DFT.tolist(),["id",name+'_sin',name+'_cos'])
         return DFT_df
 
 x0 = ###YOUR_CODE_GOES_HERE### => Please create a DataFrame containing only measurements of class 0 from the x axis
